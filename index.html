@@ -1,135 +1,107 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>شركة العريش للأسمنت</title>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<style>
-  body {
-    font-family: "Cairo", sans-serif;
-    background-color: #f4f4f4;
-    text-align: center;
-    padding: 40px;
-    direction: rtl;
-  }
-  h1 {
-    color: #1e3a8a;
-  }
-  #container {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    max-width: 600px;
-    margin: auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-  input[type="text"] {
-    width: 80%;
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    font-size: 18px;
-    margin-top: 20px;
-  }
-  button {
-    margin-top: 20px;
-    padding: 10px 25px;
-    font-size: 18px;
-    border: none;
-    border-radius: 10px;
-    background: #1e3a8a;
-    color: white;
-    cursor: pointer;
-  }
-  button:hover {
-    background: #0f2764;
-  }
-  #results {
-    text-align: right;
-    margin-top: 30px;
-    background: #f9fafb;
-    padding: 15px;
-    border-radius: 10px;
-  }
-  .message {
-    margin-bottom: 20px;
-    padding: 10px;
-    background: #eef2ff;
-    border-radius: 8px;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>شركة العريش للأسمنت</title>
+  <style>
+    body {
+      font-family: "Cairo", sans-serif;
+      background: #111;
+      color: #fff;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 { color: #ffd700; }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      margin-top: 10px;
+    }
+    input {
+      width: 250px;
+      text-align: center;
+    }
+    button {
+      background: #ffd700;
+      color: #111;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #ffb700;
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 18px;
+      line-height: 1.8;
+    }
+    p {
+      background: #222;
+      padding: 10px;
+      border-radius: 10px;
+      margin: 10px auto;
+      width: 80%;
+    }
+  </style>
 </head>
 <body>
 
-<div id="container">
   <h1>شركة العريش للأسمنت</h1>
-  <h3>مرحبًا بكم في نظام الاستعلام عن النقلات اليومية</h3>
+  <p>مرحبًا بك! من فضلك أدخل الكود لمعرفة التفاصيل:</p>
   <input type="text" id="codeInput" placeholder="أدخل الكود هنا">
-  <br>
-  <button onclick="searchCode()">بحث</button>
-  <div id="results"></div>
-</div>
+  <button id="searchBtn">بحث</button>
 
-<script>
-// ⚠️ ضع هنا رابط ملف Excel الخاص بك (بصيغة .xlsx)
-// يجب أن يكون الملف منشور للعامة ومتاح للتحميل المباشر
-const excelFileUrl = "https://github.com/mazennashat2001-coder/ARICO/blob/main/Template.xlsx?raw=true";
+  <div id="result"></div>
 
-async function searchCode() {
-  const code = document.getElementById("codeInput").value.trim();
-  const resultsDiv = document.getElementById("results");
-  resultsDiv.innerHTML = "";
+  <script>
+    const csvUrl = "https://raw.githubusercontent.com/mazennashat2001-coder/ARICO/main/Template.csv"; // 🔹 رابط ملف CSV
 
-  if (!code) {
-    resultsDiv.innerHTML = "<p style='color:red;'>من فضلك أدخل الكود أولاً.</p>";
-    return;
-  }
+    document.getElementById("searchBtn").addEventListener("click", async () => {
+      const code = document.getElementById("codeInput").value.trim();
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "";
 
-  try {
-    const response = await fetch(excelFileUrl);
-    const arrayBuffer = await response.arrayBuffer();
-    const workbook = XLSX.read(arrayBuffer, { type: "array" });
-    const firstSheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[firstSheetName];
-    const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-    // ابحث في العمودين C و H
-    const results = [];
-    for (let i = 1; i < data.length; i++) {
-      const colC = data[i][2]; // C
-      const colD = data[i][3]; // D
-      const colE = data[i][4]; // E
-      const colF = data[i][5]; // F
-      const colG = data[i][6]; // G
-      const colH = data[i][7]; // H
-      const colI = data[i][8]; // I
-      const colL = data[i][11]; // L
-
-      if (String(colC).trim() === code) {
-        results.push(`مرحبًا ${colD || "العميل"}! لديك عدد ${colE || 0} بإجمالي كمية ${colF || 0} طن، نوع ${colL || "غير محدد"} ووجهتها ${colG || "غير معروفة"} عن طريق الناقل ${colI || "غير محدد"}.`);
-      } else if (String(colH).trim() === code) {
-        results.push(`مرحبًا ${colI || "الناقل"}! لديك عدد ${colE || 0} نقلة بإجمالي كمية ${colF || 0} طن، نوع ${colL || "غير محدد"} ووجهتها ${colG || "غير معروفة"} لصالح العميل ${colD || "غير محدد"}.`);
+      if (!code) {
+        resultDiv.innerHTML = "<p>من فضلك أدخل الكود أولاً.</p>";
+        return;
       }
-    }
 
-    if (results.length === 0) {
-      resultsDiv.innerHTML = "<p style='color:red;'>لا توجد لديك أي نقلات اليوم.</p>";
-    } else {
-      resultsDiv.innerHTML = results.map(r => `<div class='message'>${r}</div>`).join("");
-    }
+      try {
+        const response = await fetch(csvUrl);
+        const text = await response.text();
+        const rows = text.split("\n").map(r => r.split(","));
+        const messages = [];
 
-  } catch (err) {
-    console.error(err);
-    resultsDiv.innerHTML = "<p style='color:red;'>حدث خطأ أثناء العملية برجاء المحاولة بعد قليل.</p>";
-  }
-}
-</script>
+        for (let i = 1; i < rows.length; i++) {
+          const row = rows[i];
+          const C = row[2]?.trim();
+          const D = row[3]?.trim();
+          const E = row[4]?.trim();
+          const F = row[5]?.trim();
+          const G = row[6]?.trim();
+          const H = row[7]?.trim();
+          const I = row[8]?.trim();
+          const L = row[11]?.trim();
 
+          if (C === code) {
+            messages.push(`مرحبًا ${D}! لديك عدد ${E} بإجمالي كمية ${F} طن، نوع ${L} ووجهتها ${G} عن طريق الناقل ${I}.`);
+          } else if (H === code) {
+            messages.push(`مرحبًا ${I}! لديك عدد ${E} نقلة بإجمالي كمية ${F} طن، نوع ${L} ووجهتها ${G} لصالح العميل ${D}.`);
+          }
+        }
+
+        if (messages.length > 0) {
+          resultDiv.innerHTML = messages.map(m => `<p>${m}</p>`).join("");
+        } else {
+          resultDiv.innerHTML = "<p>لم يتم العثور على الكود.</p>";
+        }
+
+      } catch (error) {
+        console.error(error);
+        resultDiv.innerHTML = "<p>حدث خطأ أثناء تحميل الملف.</p>";
+      }
+    });
+  </script>
 </body>
 </html>
-
-
-
-
-
